@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Diario SBD di Luca</title>
+<title>Diario SBD</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
@@ -250,11 +250,11 @@ function prepKind(ex){const n=String(ex.name||'').toLowerCase();let k=ex.lift===
 function prepBox(kind){const p=PREP_LIFT[kind];if(!p)return '';return '<div class="prep"><b>'+esc(p.t)+'</b><ul class="plain">'+p.l.map(x=>'<li>'+esc(x[0])+' <span class="muted">· '+esc(x[1])+'</span></li>').join('')+'</ul></div>'}
 const MOB_SHORT = [['Estensione toracica su foam roller o bordo panca','10 ripetizioni, 3 altezze'],['Open book','8 per lato'],['Stretch del pettorale allo stipite','2 × 30" per lato'],['Stretch del dorsale in ginocchio, gomiti sulla panca','2 × 30"'],['Stretch della spalla in estensione (mani dietro su una panca)','2 × 30"'],['Stretch di bicipite e pettorale al muro','30" per lato'],['90/90 per le anche','5 per lato'],['Accosciata profonda, talloni a terra','1\'']];
 const MOB_LONG = [['Gli esercizi della routine breve','tenute da 60-90"'],['Couch stretch (flessori dell\'anca)','2 × 60" per lato'],['Frog stretch con dondolio (adduttori)','2 × 60"'],['Stretch di flessori ed estensori dell\'avambraccio','2 × 30" per lato'],['Sleeper stretch leggero','2 × 30" per lato, solo se non fa male']];
-// Programma Claude di 13 settimane: nascosto su richiesta di Luca (segue la scheda del coach). Metti true per riattivarlo.
+// Programma Claude di 13 settimane: nascosto (si segue la scheda del coach). Metti true per riattivarlo.
 const CLAUDE_PROGRAM = false;
 if(!CLAUDE_PROGRAM)document.documentElement.classList.add('cp-off');
-const DEFAULTS = {e1rm:{SQ:170,BP:105,DL:167.5,DLR:145}, e1rmWeek:{SQ:1,BP:1,DL:1,DLR:1}, rate:{SQ:1.25,BP:0.75,DL:1.25,DLR:1}, bar:20, plates:'20, 15, 10, 5, 2.5, 1.25', bwTarget:73.5, kcal:'', prot:150, track:'claude'};
-const PRESETS = {prudente:{label:'Prudente 170 / 105 / 167,5',e1rm:{SQ:170,BP:105,DL:167.5,DLR:145}}, ambizioso:{label:'Ambizioso 175 / 115 / 170',e1rm:{SQ:175,BP:115,DL:170,DLR:147.5}}};
+const DEFAULTS = {e1rm:{SQ:100,BP:70,DL:120,DLR:100}, e1rmWeek:{SQ:1,BP:1,DL:1,DLR:1}, rate:{SQ:1.25,BP:0.75,DL:1.25,DLR:1}, bar:20, plates:'20, 15, 10, 5, 2.5, 1.25', bwTarget:'', kcal:'', prot:150, track:'claude'};
+const PRESETS = {};
 const RPE_SEQ=[100,97.8,95.5,93.9,92.2,90.7,89.2,87.8,86.3,85,83.7,82.4,81.1,79.9,78.6,77.4,76.2,75.1,73.9,72.3,70.7,69.4,68,66.7,65.3,64,62.6,61.3,59.9];
 
 const S = {db:null,rawDb:null,rawSettings:{},tombs:{},syncMsg:'',importing:false,user:null,canWrite:null,ready:false,settings:clone(DEFAULTS),logs:[],coach:[],days:{},mob:[],view:'oggi',track:null,
@@ -420,7 +420,7 @@ function vOggi(){const t=CLAUDE_PROGRAM?(S.track||'claude'):'coach';let h=CLAUDE
   const anyLast=S.logs.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];
   if(anyLast){const gap=daysBetween(anyLast.date,today());if(gap>=5){let rule=gap<=9?'Riprendi dalla seduta successiva: top set mezzo punto di RPE più basso, back-off −5%.':gap<=14?'Ripeti l\'ultima settimana completa.':'Fai una settimana con i carichi della sett. 6 (scarico), poi ripeti l\'ultima settimana completa.';h+='<div class="banner"><b>'+gap+' giorni dall\'ultima seduta.</b> '+rule+' Se abbassi i carichi, segnalo a fine seduta.</div>'}}
   if(OFF&&!S.logs.length&&!S.coach.length)h+='<div class="banner info"><b>Diario vuoto.</b> Per iniziare carica il file con i dati esportati da claude.ai. <button class="btn sm" data-act="gosync">Vai a Importa</button></div>';
-  if(ro())h+='<div class="banner info">Stai guardando il diario in sola lettura. Gli allenamenti li registra Luca.</div>';
+  if(ro())h+='<div class="banner info">Stai guardando il diario in sola lettura. Gli allenamenti li registra l\'atleta.</div>';
   return h+(t==='claude'?vClaudeSession():vCoachSession())}
 
 function vClaudeSession(){if(!S.sel.claude)S.sel.claude=nextClaude();const {w,s}=S.sel.claude;
@@ -663,7 +663,7 @@ function vProgress(){const ser=e1Series();const st=S.settings;const cur={};for(c
    ['SQ','BP','DL'].map(L=>'<div class="tile '+L+'"><div class="l">'+LIFT_NAME[L]+'</div><div class="v num">'+fmt(cur[L]?r25(cur[L]):num(st.e1rm[L]))+'</div><div class="s">'+(cur[L]?'dai log · impostato '+fmt(st.e1rm[L]):'impostato, nessun log')+'</div></div>').join('')+
    '<div class="tile"><div class="l">Totale · DOTS</div><div class="v num">'+fmt(r25(tot))+'</div><div class="s">'+(dt?'DOTS '+fmt(dt)+' a '+fmt(bw)+' kg':'Inserisci il peso in Corpo')+'</div></div></div>';
   const cols={SQ:'var(--sq)',BP:'var(--bp)',DL:'var(--dl)'};
-  h+='<div class="chart">'+lineChart(['SQ','BP','DL'].map(L=>({name:LIFT_NAME[L],color:cols[L],points:ser[L]})),{title:'Massimale stimato per alzata',unit:' kg',h:260,step:10,empty:'Il grafico appare dopo la prima seduta con top set e RPE.',refs:[]})+'<div class="row small" style="gap:14px;margin-top:4px"><span><span class="tag SQ">Squat</span></span><span><span class="tag BP">Panca</span></span><span><span class="tag DL">Stacco sumo</span></span><span class="muted">Massimali 2025: 190 / 120 / 190</span></div></div>';
+  h+='<div class="chart">'+lineChart(['SQ','BP','DL'].map(L=>({name:LIFT_NAME[L],color:cols[L],points:ser[L]})),{title:'Massimale stimato per alzata',unit:' kg',h:260,step:10,empty:'Il grafico appare dopo la prima seduta con top set e RPE.',refs:[]})+'<div class="row small" style="gap:14px;margin-top:4px"><span><span class="tag SQ">Squat</span></span><span><span class="tag BP">Panca</span></span><span><span class="tag DL">Stacco sumo</span></span></div></div>';
   const days=Object.keys(S.days).filter(k=>num(S.days[k].bw)).sort();const bpts=days.map(k=>({x:dms(k),y:num(S.days[k].bw),date:k}));const avg=bpts.map(p=>{const w=bpts.filter(q=>q.x<=p.x&&q.x>p.x-7*864e5);return {x:p.x,y:w.reduce((s,q)=>s+q.y,0)/w.length,date:p.date}});
   h+='<h2>Peso corporeo</h2><div class="chart">'+lineChart([{name:'Peso',color:'var(--muted)',points:bpts,line:false,fade:true},{name:'Media 7 giorni',color:'var(--ink)',points:avg,dots:false,w:2.2,endLabel:q=>'media '+fmt(q.y)+' kg'}],{title:'Peso corporeo e media mobile',unit:' kg',step:1,minPad:.5,refs:num(st.bwTarget)?[{y:num(st.bwTarget),label:'obiettivo '+fmt(st.bwTarget),color:'var(--good)'}]:[],empty:'Segna il peso in Corpo per vedere l\'andamento.'})+'</div>';
   h+=elbowChart(chartW());
@@ -702,7 +702,7 @@ function periodLabel(days){const lg=periodLogs(days);const a=days?dlabel(new Dat
 function mobCount(days){const n=days||7;let b=0,l=0;for(let i=0;i<n;i++){const k=new Date(dms(today())-i*864e5).toISOString().slice(0,10);if(S.days[k]&&S.days[k].mobS)b++;if(S.days[k]&&S.days[k].mobL)l++}return {b,l,n}}
 function e1Line(sep){return ['SQ','BP','DL'].map(L=>{const c=e1Current(L);return LIFT_NAME[L]+' '+fmt(c?r25(c):num(S.settings.e1rm[L]))+(c?'':' (impostato)')}).join(sep)}
 function waText(days){const lg=periodLogs(days);const a0=weekAvg(0),a1=weekAvg(1);const mc=mobCount(days&&days<=28?days:7);const L=[];
-  L.push('*Diario SBD – Luca*');L.push('Periodo: '+periodLabel(days)+' · '+lg.length+' sedute');
+  L.push('*Diario SBD*');L.push('Periodo: '+periodLabel(days)+' · '+lg.length+' sedute');
   if(a0)L.push('Peso medio 7 gg: '+fmt(a0)+' kg'+(a1?' (settimana prima '+fmt(a1)+')':''));
   L.push('Massimali stimati: '+e1Line(' · '));
   L.push('Mobilità: breve '+mc.b+'/'+mc.n+' · lunga '+mc.l);
@@ -714,10 +714,10 @@ function waText(days){const lg=periodLogs(days);const a0=weekAvg(0),a1=weekAvg(1
   return L.join('\n')}
 function exportHtml(days){const lg=periodLogs(days);const css=(document.querySelector('style')||{}).textContent||'';const st=S.settings;const cur={};for(const L of ['SQ','BP','DL'])cur[L]=e1Current(L);
   const bw=latestBW();const tot=['SQ','BP','DL'].reduce((s,L)=>s+(cur[L]||num(st.e1rm[L])),0);const dt=dots(tot,bw);const ser=e1Series();const cols={SQ:'var(--sq)',BP:'var(--bp)',DL:'var(--dl)'};
-  let b='<div class="wrap" style="padding-block:16px 40px"><div class="brand"><h1>Diario <span>SBD</span> · Luca</h1><div class="status">Esportato il '+dlabel(today())+' · periodo '+esc(periodLabel(days))+'</div></div>';
-  b+='<p class="small muted">Copia in sola lettura. I dati aggiornati sono nell\'app di Luca: questo file mostra la situazione al momento dell\'esportazione.</p>';
+  let b='<div class="wrap" style="padding-block:16px 40px"><div class="brand"><h1>Diario <span>SBD</span></h1><div class="status">Esportato il '+dlabel(today())+' · periodo '+esc(periodLabel(days))+'</div></div>';
+  b+='<p class="small muted">Copia in sola lettura. I dati aggiornati sono nell\'app: questo file mostra la situazione al momento dell\'esportazione.</p>';
   b+='<h2>Massimali stimati</h2><div class="tiles">'+['SQ','BP','DL'].map(L=>'<div class="tile '+L+'"><div class="l">'+LIFT_NAME[L]+'</div><div class="v num">'+fmt(cur[L]?r25(cur[L]):num(st.e1rm[L]))+'</div><div class="s">'+(cur[L]?'dai log':'impostato')+'</div></div>').join('')+'<div class="tile"><div class="l">Totale · DOTS</div><div class="v num">'+fmt(r25(tot))+'</div><div class="s">'+(dt?'DOTS '+fmt(dt)+' a '+fmt(bw)+' kg':'')+'</div></div></div>';
-  b+='<div class="chart">'+lineChart(['SQ','BP','DL'].map(L=>({name:LIFT_NAME[L],color:cols[L],points:ser[L]})),{W:480,title:'Massimale stimato per alzata',unit:' kg',h:260,step:10,empty:'Ancora nessuna seduta con RPE.'})+'<div class="row small" style="gap:14px;margin-top:4px"><span class="tag SQ">Squat</span><span class="tag BP">Panca</span><span class="tag DL">Stacco sumo</span><span class="muted">Massimali 2025: 190 / 120 / 190</span></div></div>';
+  b+='<div class="chart">'+lineChart(['SQ','BP','DL'].map(L=>({name:LIFT_NAME[L],color:cols[L],points:ser[L]})),{W:480,title:'Massimale stimato per alzata',unit:' kg',h:260,step:10,empty:'Ancora nessuna seduta con RPE.'})+'<div class="row small" style="gap:14px;margin-top:4px"><span class="tag SQ">Squat</span><span class="tag BP">Panca</span><span class="tag DL">Stacco sumo</span></div></div>';
   const dk=Object.keys(S.days).filter(k=>num(S.days[k].bw)).sort();const bp=dk.map(k=>({x:dms(k),y:num(S.days[k].bw),date:k}));const av=bp.map(p=>{const w=bp.filter(q=>q.x<=p.x&&q.x>p.x-7*864e5);return {x:p.x,y:w.reduce((s,q)=>s+q.y,0)/w.length,date:p.date}});
   b+='<h2>Peso corporeo</h2><div class="chart">'+lineChart([{name:'Peso',color:'var(--muted)',points:bp,line:false,fade:true},{name:'Media 7 giorni',color:'var(--ink)',points:av,dots:false,w:2.2}],{W:480,title:'Peso corporeo',unit:' kg',step:1,minPad:.5,refs:num(st.bwTarget)?[{y:num(st.bwTarget),label:'obiettivo '+fmt(st.bwTarget),color:'var(--good)'}]:[],empty:'Nessun peso registrato.'})+'</div>';
   b+=elbowChart(480);b+=devChart(480);
@@ -730,7 +730,7 @@ function exportHtml(days){const lg=periodLogs(days);const css=(document.querySel
   if(pd.length)b+='<h2>Peso, calorie e mobilità</h2><div class="tbl"><table><thead><tr><th>Data</th><th>Peso</th><th>Kcal</th><th>Proteine</th><th>Mob. breve</th><th>Mob. lunga</th></tr></thead><tbody>'+pd.map(k=>{const d=S.days[k];return '<tr><td class="k">'+dlabel(k)+'</td><td class="k">'+fmt(d.bw)+'</td><td class="k">'+fmt(d.kcal,0)+'</td><td class="k">'+fmt(d.prot,0)+'</td><td>'+(d.mobS?'✓':'')+'</td><td>'+(d.mobL?'✓':'')+'</td></tr>'}).join('')+'</tbody></table></div>';
   if(S.mob.length)b+='<h2>Test di mobilità</h2><div class="tbl"><table><thead><tr><th>Data</th><th>Muro</th><th>Scratch dx</th><th>Scratch sx</th><th>Presa LB</th><th>Fastidio</th><th>Accosciata</th></tr></thead><tbody>'+S.mob.map(m=>'<tr><td class="k">'+dlabel(m.id)+'</td><td class="k">'+fmt(m.wall)+'</td><td class="k">'+fmt(m.sr)+'</td><td class="k">'+fmt(m.sl)+'</td><td class="k">'+fmt(m.grip)+'</td><td>'+(m.lbp?'Sì':'No')+'</td><td class="k">'+fmt(m.hold,0)+'"</td></tr>').join('')+'</tbody></table></div>';
   b+='</div>';
-  return '<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Diario SBD Luca – '+dlabel(today())+'</title><style>'+css.replace(/<\/style/gi,'')+'</style></head><body>'+b+'</body></html>'}
+  return '<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Diario SBD – '+dlabel(today())+'</title><style>'+css.replace(/<\/style/gi,'')+'</style></head><body>'+b+'</body></html>'}
 function vExport(){const d=S.expDays;const txt=waText(d);
   let h='<h2>Per il coach</h2><p class="small muted">Prepara un riepilogo da mandare al coach: un messaggio da incollare su WhatsApp oppure un file html che apre nel browser, senza account.</p>';
   h+='<label class="f" style="max-width:260px">Periodo<select data-act="expdays">'+[[7,'Ultimi 7 giorni'],[14,'Ultimi 14 giorni'],[28,'Ultime 4 settimane'],[0,'Tutto']].map(([v,l])=>'<option value="'+v+'"'+(v===d?' selected':'')+'>'+l+'</option>').join('')+'</select></label>';
@@ -809,7 +809,7 @@ main.addEventListener('click',async e=>{const b=e.target.closest('[data-act]');i
   else if(a==='gosync'){S.view='set';render();setTimeout(()=>{const el=document.getElementById('sync');if(el)el.scrollIntoView()},50)}
   else if(a==='wacopy'){const ta=document.getElementById('wa-text');try{await navigator.clipboard.writeText(ta.value);toast('Messaggio copiato')}catch(err){ta.focus();ta.select();toast('Testo selezionato: copialo con il menu del telefono')}}
   else if(a==='xlsx'){if(!S.dl){toast('Salvataggio non disponibile');return}try{await S.dl.save({filename:'Progressi carichi - Diario SBD.xlsx',data:buildXlsx(progData())});toast('Excel salvato')}catch(err){const c=err&&err.code;toast(c==='declined'?'Salvataggio annullato':c==='rate_limited'?'Aspetta qualche secondo e riprova':'Salvataggio non riuscito')}}
-  else if(a==='exphtml'){if(!S.dl){toast('Salvataggio non disponibile');return}try{const html=exportHtml(S.expDays);await S.dl.save({filename:'diario-sbd-luca-'+today()+'.html',data:html});toast('File salvato')}catch(err){const c=err&&err.code;toast(c==='declined'?'Salvataggio annullato':c==='rate_limited'?'Aspetta qualche secondo e riprova':'Salvataggio non riuscito')}}
+  else if(a==='exphtml'){if(!S.dl){toast('Salvataggio non disponibile');return}try{const html=exportHtml(S.expDays);await S.dl.save({filename:'diario-sbd-'+today()+'.html',data:html});toast('File salvato')}catch(err){const c=err&&err.code;toast(c==='declined'?'Salvataggio annullato':c==='rate_limited'?'Aspetta qualche secondo e riprova':'Salvataggio non riuscito')}}
   else if(a==='cw-add'){const order=(S.coach.reduce((m,w)=>Math.max(m,w.order||0),0))+1;await write(()=>S.db.collection('coachweeks').add({order,title:'Settimana '+order,sessions:[]}),'Settimana aggiunta')}
   else if(a==='cw-ren'){const inp=main.querySelector('input[data-cwt="'+b.dataset.w+'"]');await write(()=>S.db.doc('coachweeks/'+b.dataset.w).update({title:inp.value.trim()||'Settimana'}),'Rinominata')}
   else if(a==='cw-del'){if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='Tocca di nuovo per eliminare';return}await write(()=>S.db.doc('coachweeks/'+b.dataset.w).delete(),'Settimana eliminata')}
