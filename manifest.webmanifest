@@ -1,7 +1,7 @@
 {
  "name": "Diario SBD",
  "short_name": "Diario SBD",
- "description": "Diario di allenamento di Luca, funziona anche offline",
+ "description": "Diario di allenamento, funziona anche offline",
  "lang": "it",
  "start_url": "./",
  "scope": "./",
